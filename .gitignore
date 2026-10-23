@@ -1,0 +1,22 @@
+# Claude project context (local only)
+CLAUDE.md
+
+# Python
+__pycache__/
+*.pyc
+.env
+venv/
+
+# Results (large files)
+results/*.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# LLM-Trust-Breaking clone (reference only)
+LLM-Trust-Breaking/
