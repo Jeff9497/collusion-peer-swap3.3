@@ -97,7 +97,7 @@ def generate(results_dir, fig_dir, output_path):
     pdf.cell(0, 6, "Geofrey Njoroge Kamau", align="C", new_x="LMARGIN", new_y="NEXT")
     pdf.set_font("Helvetica", "I", 10)
     pdf.cell(0, 5, "Murang'a University of Technology", align="C", new_x="LMARGIN", new_y="NEXT")
-    pdf.cell(0, 5, "jeffkamau9497@gmail.com", align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 5, "kamau@geofreynjoroge.com", align="C", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(6)
 
     pdf.set_font("Helvetica", "", 9)
