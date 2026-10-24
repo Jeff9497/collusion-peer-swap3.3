@@ -78,6 +78,7 @@ def run_game(
 
         response_a = agent_a.choose(round_num, total_rounds, history_text)
         response_b = agent_b.choose(round_num, total_rounds, history_text)
+        print(f"  R{round_num+1}/{total_rounds} A={_parse_choice(response_a)} B={_parse_choice(response_b)}", flush=True)
 
         choice_a = _parse_choice(response_a)
         choice_b = _parse_choice(response_b)

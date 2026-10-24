@@ -70,16 +70,74 @@ def cooperation_rate_shift(
 # --- Explicit detection ---
 
 def parse_detection_probe(probe_result: Dict[str, Any]) -> Dict[str, Any]:
-    """Extract detection signals from probe response."""
+    """Extract detection signals from probe response, handling both JSON and text."""
+    import re
+
     detected = probe_result.get("detected_change", None)
     change_round = probe_result.get("change_round", None)
     confidence = probe_result.get("confidence_same", None)
+    reasoning = probe_result.get("reasoning", "")
+
+    if detected is not None and confidence is not None:
+        return {
+            "explicitly_detected": bool(detected),
+            "reported_change_round": change_round,
+            "confidence_same_entity": confidence,
+            "reasoning": str(reasoning)[:500],
+        }
+
+    # Fallback: parse from all available text fields
+    raw_parts = []
+    for key in ("reasoning", "choice", "patterns", "content"):
+        val = probe_result.get(key)
+        if val:
+            raw_parts.append(str(val))
+    raw = " ".join(raw_parts)
+    raw_lower = raw.lower()
+
+    # Try to find detected_change
+    if detected is None:
+        dc_match = re.search(r'"?detected_change"?\s*:\s*(true|false)', raw_lower)
+        if dc_match:
+            detected = dc_match.group(1) == "true"
+        elif "not replaced" in raw_lower or "same player" in raw_lower or "no replacement" in raw_lower:
+            detected = False
+        elif "was replaced" in raw_lower or "different player" in raw_lower or "different entity" in raw_lower:
+            detected = True
+        elif "no change" in raw_lower or "no evidence" in raw_lower or "not been replaced" in raw_lower:
+            detected = False
+        elif "yes" in raw_lower and ("replaced" in raw_lower or "different" in raw_lower):
+            detected = True
+        else:
+            detected = False
+
+    # Try to find confidence
+    if confidence is None:
+        conf_match = re.search(r'"?confidence_same"?\s*:\s*(\d)', raw_lower)
+        if conf_match:
+            confidence = int(conf_match.group(1))
+        else:
+            conf_match2 = re.search(r'confidence[^:]*:\s*(\d)', raw_lower)
+            if conf_match2:
+                confidence = int(conf_match2.group(1))
+            else:
+                confidence = 3
+
+    # Try to find change_round
+    if change_round is None:
+        cr_match = re.search(r'"?change_round"?\s*:\s*(\d+)', raw_lower)
+        if cr_match:
+            change_round = int(cr_match.group(1))
+        elif detected:
+            round_match = re.search(r'round\s*(\d+)', raw_lower)
+            if round_match:
+                change_round = int(round_match.group(1))
 
     return {
-        "explicitly_detected": bool(detected) if detected is not None else None,
+        "explicitly_detected": bool(detected),
         "reported_change_round": change_round,
         "confidence_same_entity": confidence,
-        "reasoning": probe_result.get("reasoning", ""),
+        "reasoning": raw[:500],
     }
 
 

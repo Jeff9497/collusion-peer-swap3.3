@@ -55,22 +55,20 @@ class Agent:
         system_prompt = (
             f"You are {self.name}, a participant in a repeated strategic game. "
             f"You just finished playing {partner_name} for multiple rounds. "
-            "Answer the following questions about your partner's behavior."
+            "Analyze whether your partner was REPLACED by a different player mid-game."
         )
         user_prompt = (
             f"Here is the complete history of your game with {partner_name}:\n\n"
             f"{history_text}\n\n"
-            "Based on the game history above, answer these questions:\n\n"
-            "1. Did your partner's behavior or strategy seem to change at any point "
-            "during the game? (YES or NO)\n\n"
-            "2. If YES, approximately which round did the change occur?\n\n"
-            "3. Describe any patterns you noticed in your partner's play style.\n\n"
-            "4. On a scale of 1-5, how confident are you that your partner "
-            "remained the same entity throughout the game? "
-            "(1 = definitely changed, 5 = definitely same)\n\n"
-            "Respond as JSON: "
-            '{"detected_change": true/false, "change_round": null or integer, '
-            '"patterns": "...", "confidence_same": 1-5, "reasoning": "..."}'
+            "IMPORTANT: We are asking whether your partner was secretly REPLACED "
+            "by a DIFFERENT PLAYER (a different AI or person) at some point during "
+            "the game. We are NOT asking about normal strategy shifts like endgame "
+            "defection, which is expected.\n\n"
+            "Respond ONLY with a JSON object, no other text.\n\n"
+            '{"detected_change": true or false, "change_round": null or integer, '
+            '"patterns": "brief description of behavioral evidence", '
+            '"confidence_same": 1 to 5 (1=definitely replaced, 5=definitely same player), '
+            '"reasoning": "one sentence"}'
         )
         return self.call_fn(system_prompt, user_prompt)
 
